@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#185461">
+<title>心身観測</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Shippori+Mincho:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light dark;
+  --trowa:#185461;
+  --trowa-soft:#edf3f4;
+  --bg:#f7f9fa;
+  --card:#ffffff;
+  --card-soft:#fbfcfc;
+  --text:#2c363f;
+  --muted:#8596a0;
+  --line:#e1e8ed;
+  --estrogen:#b27498;
+  --progesterone:#bc8b58;
+  --mood:#185461;
+  --danger:#9d5a55;
+  --serif:"Shippori Mincho","Yu Mincho",serif;
+  --sans:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --trowa:#75a9b4;
+    --trowa-soft:#18282c;
+    --bg:#121718;
+    --card:#192023;
+    --card-soft:#151b1d;
+    --text:#e9eff1;
+    --muted:#8c9ba0;
+    --line:#293438;
+    --estrogen:#c98aaa;
+    --progesterone:#c99b6b;
+    --mood:#75a9b4;
+    --danger:#d48b84;
+  }
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{
+  margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;line-height:1.55;
+}
+button,input,textarea,select{font:inherit}
+button{touch-action:manipulation}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{
+  outline:3px solid color-mix(in srgb,var(--trowa) 28%,transparent);outline-offset:2px
+}
+.page{max-width:760px;margin:0 auto;padding:0 0 52px}
+.app-header{
+  padding:26px 20px 18px;background:color-mix(in srgb,var(--bg) 94%,transparent);
+  position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);
+}
+.app-title{
+  font-family:var(--serif);font-size:26px;font-weight:600;color:var(--trowa);
+  letter-spacing:.09em;line-height:1.2;
+}
+.app-subtitle{
+  font-size:10px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-top:5px;
+}
+.content{padding:0 16px}
+.observation-card{
+  background:var(--card);border-radius:18px;padding:22px 18px;margin:0 0 18px;
+  box-shadow:0 4px 24px rgba(0,0,0,.035);
+}
+.section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:17px}
+.section-title{
+  font-family:var(--serif);font-size:17px;font-weight:600;letter-spacing:.06em;margin:0;
+}
+.section-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.date-field{display:flex;flex-direction:column;gap:4px;min-width:142px;font-size:10px;color:var(--muted)}
+input[type=date],input[type=number],select,textarea{
+  width:100%;border:1px solid var(--line);background:var(--card-soft);color:var(--text);
+  border-radius:12px;padding:11px 12px;font-size:16px;min-height:46px;outline:none;
+}
+textarea{resize:vertical;min-height:100px;line-height:1.65}
+.position{
+  font-size:11px;color:var(--muted);background:var(--trowa-soft);border-radius:10px;
+  padding:9px 11px;margin:-3px 0 20px;
+}
+.edit-bar{
+  display:none;align-items:center;justify-content:space-between;gap:10px;
+  border-radius:10px;padding:9px 11px;margin:-3px 0 12px;background:var(--trowa-soft);
+  color:var(--trowa);font-size:12px;font-weight:700;
+}
+.edit-bar.active{display:flex}
+.cancel-edit{border:0;background:transparent;color:var(--trowa);font-weight:700;min-height:40px;padding:4px 8px}
+.mood-item{margin-bottom:20px}
+.mood-label-row{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}
+.mood-label{font-size:13px;letter-spacing:.04em}
+.mood-state{font-size:10px;color:var(--muted)}
+.mood-scale{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.scale-btn{
+  min-height:52px;border:1px solid var(--line);background:var(--card);color:var(--muted);
+  border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:.16s ease;
+}
+.scale-btn[aria-pressed=true]{background:var(--trowa);border-color:var(--trowa);color:#fff}
+.daily-extra{border-top:1px solid var(--line);padding-top:18px;margin-top:4px}
+.extra-title{font-family:var(--serif);font-size:14px;letter-spacing:.05em;margin-bottom:11px}
+.sleep-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:16px}
+.sleep-btn{
+  min-height:46px;border:1px solid var(--line);border-radius:12px;background:var(--card);
+  color:var(--muted);font-size:11px;font-weight:600;padding:6px;cursor:pointer;
+}
+.sleep-btn[aria-pressed=true]{border-color:var(--trowa);color:var(--text);background:var(--trowa-soft)}
+.sleep-hint{font-size:10px;color:var(--muted);margin:-9px 0 14px}
+.lifestyle-tags{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:16px}
+.tag-btn{
+  position:relative;display:inline-flex;align-items:center;min-height:44px;padding:9px 16px;
+  border:1px solid var(--line);background:var(--card);border-radius:999px;font-size:12px;
+  color:var(--muted);cursor:pointer;
+}
+.tag-btn input{position:absolute;opacity:0;pointer-events:none}
+.tag-btn:has(input:checked){border-color:var(--trowa);color:var(--text);background:var(--trowa-soft)}
+.memo-label{display:block;font-size:12px;margin:0 0 7px}
+.primary{
+  width:100%;min-height:54px;border:0;border-radius:13px;background:var(--trowa);color:#fff;
+  font-size:14px;font-weight:700;letter-spacing:.04em;margin-top:17px;cursor:pointer;
+}
+.primary:disabled{opacity:.28;cursor:not-allowed}
+.status{font-size:11px;color:var(--muted);text-align:center;min-height:18px;margin-top:12px}
+.graph-card{padding-bottom:18px}
+.graph-controls{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}
+.series-btn{
+  min-height:39px;border:1px solid var(--line);border-radius:999px;background:transparent;
+  color:var(--muted);padding:7px 11px;font-size:11px;font-weight:600;cursor:pointer;
+}
+.series-btn[aria-pressed=true]{background:var(--trowa);border-color:var(--trowa);color:#fff}
+.hormone-toggles{display:flex;gap:15px;flex-wrap:wrap;margin:4px 0 12px;font-size:11px;color:var(--muted)}
+.hormone-toggles label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.hormone-toggles input{width:17px;height:17px}
+.legend-line{width:18px;height:2px;border-radius:2px}.estrogen{background:var(--estrogen)}.progesterone{background:var(--progesterone)}
+.chart-wrap{overflow-x:auto;padding:8px 0;border-top:1px solid color-mix(in srgb,var(--line) 65%,transparent);border-bottom:1px solid color-mix(in srgb,var(--line) 65%,transparent)}
+svg{display:block;width:100%;min-width:590px;height:auto}
+.chart-detail{font-size:11px;color:var(--muted);padding:10px 1px 0;min-height:33px}
+.chart-caption{font-size:10px;color:var(--muted);margin:7px 0 0}
+.history-list{display:grid;gap:9px}
+.empty{font-size:12px;color:var(--muted);padding:8px 0}
+.entry{padding:12px 0;border-bottom:1px solid var(--line)}
+.entry:last-child{border-bottom:0}
+.entry-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.entry-date{font-family:var(--serif);font-size:14px}.entry-cycle{font-size:10px;color:var(--muted);margin-left:7px}
+.entry-actions{display:flex;gap:2px}
+.text-btn{min-height:40px;border:0;background:transparent;color:var(--muted);font-size:11px;padding:5px 8px}
+.text-btn.edit{color:var(--trowa);font-weight:700}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.chip{font-size:10px;padding:4px 7px;border-radius:999px;background:var(--trowa-soft);color:var(--muted)}
+.entry-extra,.entry-note{font-size:11px;color:var(--muted);margin-top:7px}
+.entry-note{white-space:pre-wrap;line-height:1.6}
+.manage-details{margin-top:2px}
+.manage-details>summary{
+  list-style:none;cursor:pointer;font-family:var(--serif);font-size:14px;letter-spacing:.05em;
+  color:var(--muted);padding:5px 0;
+}
+.manage-details>summary::-webkit-details-marker{display:none}
+.manage-details>summary::after{content:" ＋";font-family:var(--sans);font-size:13px}
+.manage-details[open]>summary::after{content:" −"}
+.manage-body{padding-top:17px}
+.settings-grid{display:grid;grid-template-columns:1.4fr .8fr 1fr;gap:10px}
+.field{display:flex;flex-direction:column;gap:6px;font-size:10px;color:var(--muted);min-width:0}
+.unit{display:flex;gap:7px;align-items:center}.unit b{font-size:10px;color:var(--muted);white-space:nowrap}
+.manage-divider{height:1px;background:var(--line);margin:19px 0}
+.data-actions{display:flex;gap:8px;flex-wrap:wrap}
+.secondary,.danger{
+  min-height:44px;border-radius:11px;padding:8px 12px;background:transparent;
+  font-size:11px;font-weight:600;cursor:pointer;
+}
+.secondary{border:1px solid var(--line);color:var(--text)}
+.danger{border:1px solid color-mix(in srgb,var(--danger) 50%,var(--line));color:var(--danger)}
+.secondary:disabled,.danger:disabled{opacity:.3}
+.file-button{position:relative;overflow:hidden}.file-button input{position:absolute;inset:0;opacity:0}
+.data-status{font-size:10px;color:var(--muted);min-height:16px;margin-top:8px}
+.backup-note{font-size:10px;color:var(--muted);margin:8px 0 0}
+.cycle-select{min-width:142px}
+@media(max-width:620px){
+  .page{padding-bottom:40px}.app-header{padding:22px 18px 15px}.content{padding:0 12px}
+  .observation-card{padding:20px 16px;margin-bottom:14px}.section-head{flex-direction:column}
+  .date-field,.cycle-select{width:100%;min-width:0}.settings-grid{grid-template-columns:1fr 1fr}
+  .settings-grid .field:first-child{grid-column:1/-1}
+}
+@media(max-width:360px){
+  .sleep-grid{grid-template-columns:1fr 1fr}.settings-grid{grid-template-columns:1fr}
+  .settings-grid .field:first-child{grid-column:auto}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="app-title">心身観測</div>
+  <div class="app-subtitle">mental & physical log</div>
+</header>
+
+<main class="page">
+<div class="content">
+
+<section class="observation-card">
+  <div class="section-head">
+    <div>
+      <h2 class="section-title">今日の記録</h2>
+      <div class="section-sub">考え込まず、いまの強さをそのまま。</div>
+    </div>
+    <label class="date-field">日付<input id="recordDate" type="date"></label>
+  </div>
+
+  <div id="editBar" class="edit-bar"><span id="editLabel">記録を編集中</span><button id="cancelEdit" class="cancel-edit" type="button">編集をやめる</button></div>
+  <div id="position" class="position">周期設定をすると周期日が出ます。</div>
+
+  <form id="form">
+    <div id="metrics"></div>
+
+    <div class="daily-extra">
+      <div class="extra-title">今日の条件</div>
+
+      <div class="mood-label-row"><span class="mood-label">睡眠</span><span id="sleepState" class="mood-state">未記録</span></div>
+      <div id="sleepGrid" class="sleep-grid">
+        <button class="sleep-btn" type="button" data-value="よく眠れた" aria-pressed="false">よく眠れた</button>
+        <button class="sleep-btn" type="button" data-value="普通" aria-pressed="false">普通</button>
+        <button class="sleep-btn" type="button" data-value="いまいち" aria-pressed="false">いまいち</button>
+        <button class="sleep-btn" type="button" data-value="かなり悪い" aria-pressed="false">かなり悪い</button>
+      </div>
+      <div class="sleep-hint">選択中のボタンをもう一度押すと未記録に戻せます。</div>
+
+      <div class="lifestyle-tags">
+        <label class="tag-btn"><input id="soy" type="checkbox"><span>大豆あり</span></label>
+        <label class="tag-btn"><input id="exercise" type="checkbox"><span>運動あり</span></label>
+        <label class="tag-btn"><input id="dairy" type="checkbox"><span>乳製品多め</span></label>
+        <label class="tag-btn"><input id="pfc" type="checkbox"><span>PFC意識</span></label>
+      </div>
+
+      <label class="memo-label" for="note">メモ</label>
+      <textarea id="note" maxlength="500" placeholder="何を食べた、急に落ちた、トロワで一旦回復した、など。あとから追記できます。"></textarea>
+    </div>
+
+    <div id="saveStatus" class="status" aria-live="polite">6項目を選ぶと保存できます。</div>
+    <button id="saveBtn" class="primary" type="submit" disabled>この日を保存</button>
+  </form>
+</section>
+
+<section class="observation-card graph-card">
+  <div class="section-head">
+    <div>
+      <h2 class="section-title">周期の波</h2>
+      <div class="section-sub">気分と推定ホルモン曲線を重ねて観察。</div>
+    </div>
+    <label class="field cycle-select">表示周期<select id="viewCycle"></select></label>
+  </div>
+
+  <div id="seriesPicker" class="graph-controls"></div>
+  <div class="hormone-toggles">
+    <label><input id="showEstrogen" type="checkbox" checked><span class="legend-line estrogen"></span>エストロゲン推定</label>
+    <label><input id="showProg" type="checkbox" checked><span class="legend-line progesterone"></span>プロゲステロン推定</label>
+  </div>
+  <div class="chart-wrap"><svg id="chart" viewBox="0 0 760 350" role="img" aria-label="周期日ごとの気分と推定ホルモン相対レベル"></svg></div>
+  <div id="chartDetail" class="chart-detail" aria-live="polite">記録点をタップすると詳細が出ます。</div>
+  <p class="chart-caption">左軸＝気分0〜3、右軸＝推定ホルモン相対レベル0〜100。ホルモン曲線は実測値ではありません。</p>
+</section>
+
+<section class="observation-card">
+  <div class="section-head">
+    <div><h2 class="section-title">記録</h2><div class="section-sub">あとから編集・追記できます。</div></div>
+    <span id="count" class="section-sub">0件</span>
+  </div>
+  <div id="history" class="empty">まだ記録はありません。</div>
+</section>
+
+<section class="observation-card">
+  <details class="manage-details">
+    <summary>周期設定・データ管理</summary>
+    <div class="manage-body">
+      <div class="settings-grid">
+        <label class="field">今回の生理開始日<input id="periodStart" type="date"></label>
+        <label class="field">周期日数<div class="unit"><input id="cycleLength" type="number" min="21" max="45" value="28"><b>日</b></div></label>
+        <label class="field">排卵日 <span>空欄＝周期−14日</span><div class="unit"><input id="ovulationDay" type="number" min="7" max="35" placeholder="自動"><b>日目</b></div></label>
+      </div>
+      <div id="cycleSummary" class="backup-note"></div>
+
+      <div class="manage-divider"></div>
+
+      <div class="data-actions">
+        <button id="exportBtn" class="secondary" type="button" disabled>CSVを書き出す</button>
+        <label class="secondary file-button">CSVを読み込む<input id="importInput" type="file" accept=".csv,text/csv"></label>
+        <button id="clearBtn" class="danger" type="button" disabled>全記録を消す</button>
+      </div>
+      <div id="dataStatus" class="data-status" aria-live="polite"></div>
+      <p class="backup-note">記録はこの端末のブラウザに保存されます。サイトデータ削除に備えて、1周期ごとのCSVバックアップがおすすめ。</p>
+    </div>
+  </details>
+</section>
+
+</div>
+</main>
+
+<script>
+(()=>{"use strict";
+
+const STORAGE_KEY="cycleMentalLog.v1";
+const SETTINGS_KEY="cycleMentalLog.settings.v1";
+const defs=[
+  ["down","落ち込み"],["irritation","イライラ"],["others","他人への否定性"],
+  ["self","自分への否定性"],["motivation","意欲低下"],["anxiety","不安"]
+];
+const series=[["composite","総合"],...defs];
+const scores={};
+let entries=load(STORAGE_KEY,[]);
+let activeSeries="composite";
+let editingId=null;
+let sleepValue="";
+
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const periodStart=$("#periodStart"),cycleLength=$("#cycleLength"),ovulationDay=$("#ovulationDay"),
+      recordDate=$("#recordDate"),viewCycle=$("#viewCycle"),chart=$("#chart"),historyEl=$("#history"),
+      saveBtn=$("#saveBtn"),saveStatus=$("#saveStatus");
+
+function load(k,fallback){try{const raw=localStorage.getItem(k);return raw?JSON.parse(raw):fallback}catch{return fallback}}
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch{return false}}
+function pad(n){return String(n).padStart(2,"0")}
+function todayISO(){const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function clamp(n,a,b){return Math.max(a,Math.min(b,n))}
+function dayNumber(iso){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso||"")))return null;
+  const [y,m,d]=iso.split("-").map(Number);
+  return Math.floor(Date.UTC(y,m-1,d)/86400000);
+}
+function isoFromDay(n){const d=new Date(n*86400000);return d.getUTCFullYear()+"-"+pad(d.getUTCMonth()+1)+"-"+pad(d.getUTCDate())}
+function fmt(iso){if(!iso)return "—";const [,m,d]=iso.split("-");return Number(m)+"/"+Number(d)}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
+
+const savedSettings=load(SETTINGS_KEY,null);
+recordDate.value=todayISO();
+periodStart.value=savedSettings?.start||todayISO();
+cycleLength.value=String(savedSettings?.length||28);
+ovulationDay.value=savedSettings?.ovulationCustom?String(savedSettings.ovulation):"";
+
+function settings(){
+  const length=clamp(parseInt(cycleLength.value,10)||28,21,45);
+  const raw=parseInt(ovulationDay.value,10);
+  const custom=Number.isFinite(raw);
+  const ovulation=clamp(custom?raw:length-14,7,length-5);
+  return {start:periodStart.value,length,ovulation,ovulationCustom:custom};
+}
+function cycleDay(date,start){
+  const a=dayNumber(date),b=dayNumber(start);
+  return a===null||b===null?null:a-b+1;
+}
+function hormoneModel(day,length,ovulation){
+  day=clamp(day,1,length);
+  const estrogenPoints=[
+    [1,20],[Math.max(2,ovulation-8),18],[Math.max(3,ovulation-4),48],
+    [Math.max(4,ovulation-1),100],[ovulation,58],[Math.min(length,ovulation+2),34],
+    [Math.min(length,ovulation+6),66],[Math.min(length,ovulation+9),54],
+    [Math.max(1,length-2),25],[length,16]
+  ];
+  const progesteronePoints=[
+    [1,8],[ovulation,8],[Math.min(length,ovulation+2),34],[Math.min(length,ovulation+7),100],
+    [Math.min(length,ovulation+10),82],[Math.max(1,length-2),34],[length,9]
+  ];
+  function interpolate(points){
+    const unique=new Map();
+    points.forEach(([x,y])=>unique.set(clamp(Math.round(x),1,length),y));
+    const p=[...unique.entries()].sort((a,b)=>a[0]-b[0]);
+    if(day<=p[0][0])return p[0][1];
+    for(let i=1;i<p.length;i++){
+      const [x1,y1]=p[i-1],[x2,y2]=p[i];
+      if(day<=x2){
+        const t=(day-x1)/Math.max(1,x2-x1);
+        const smooth=t*t*(3-2*t);
+        return y1+(y2-y1)*smooth;
+      }
+    }
+    return p[p.length-1][1];
+  }
+  return {estrogen:Math.round(interpolate(estrogenPoints)),progesterone:Math.round(interpolate(progesteronePoints))};
+}
+function composite(entry){
+  return defs.reduce((sum,[k])=>sum+(Number(entry.scores?.[k])||0),0)/defs.length;
+}
+
+defs.forEach(([key,label])=>{
+  const wrap=document.createElement("div");
+  wrap.className="mood-item";
+  wrap.innerHTML='<div class="mood-label-row"><span class="mood-label">'+label+'</span><span id="state-'+key+'" class="mood-state">未選択</span></div><div class="mood-scale" role="group" aria-label="'+label+'"></div>';
+  const row=wrap.querySelector(".mood-scale");
+  [0,1,2,3].forEach(n=>{
+    const b=document.createElement("button");
+    b.type="button";b.className="scale-btn";b.textContent=String(n);b.setAttribute("aria-pressed","false");
+    b.addEventListener("click",()=>{
+      scores[key]=n;
+      [...row.children].forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
+      wrap.querySelector("#state-"+key).textContent=["なし","軽い","強い","かなり強い"][n];
+      validate();
+    });
+    row.appendChild(b);
+  });
+  $("#metrics").appendChild(wrap);
+});
+
+series.forEach(([key,label])=>{
+  const b=document.createElement("button");
+  b.type="button";b.className="series-btn";b.textContent=label;
+  b.setAttribute("aria-pressed",key==="composite"?"true":"false");
+  b.addEventListener("click",()=>{
+    activeSeries=key;
+    $$(".series-btn").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
+    drawChart();
+  });
+  $("#seriesPicker").appendChild(b);
+});
+
+$$(".sleep-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const value=btn.dataset.value;
+    if(sleepValue===value){
+      sleepValue="";
+      $$(".sleep-btn").forEach(x=>x.setAttribute("aria-pressed","false"));
+      $("#sleepState").textContent="未記録";
+    }else{
+      sleepValue=value;
+      $$(".sleep-btn").forEach(x=>x.setAttribute("aria-pressed",x===btn?"true":"false"));
+      $("#sleepState").textContent=value;
+    }
+  });
+});
+
+function validate(){
+  const complete=defs.every(([k])=>Number.isInteger(scores[k]));
+  saveBtn.disabled=!complete;
+  saveStatus.textContent=complete?(editingId!==null?"変えたいところだけ直して保存できます。":"記録できます。"):"6項目を選ぶと保存できます。";
+}
+function resetForm(){
+  defs.forEach(([k])=>delete scores[k]);
+  $$(".scale-btn").forEach(b=>b.setAttribute("aria-pressed","false"));
+  defs.forEach(([k])=>$("#state-"+k).textContent="未選択");
+  sleepValue="";
+  $$(".sleep-btn").forEach(b=>b.setAttribute("aria-pressed","false"));
+  $("#sleepState").textContent="未記録";
+  $("#soy").checked=false;$("#exercise").checked=false;$("#dairy").checked=false;$("#pfc").checked=false;
+  $("#note").value="";
+  validate();
+}
+function enterEdit(entry){
+  editingId=entry.id;
+  $("#editBar").classList.add("active");
+  $("#editLabel").textContent=entry.date+" の記録を編集中";
+  saveBtn.textContent="変更を保存";
+  recordDate.value=entry.date;
+  recordDate.disabled=true;
+
+  defs.forEach(([k])=>{
+    const n=Number(entry.scores?.[k]);
+    if(Number.isInteger(n)){
+      scores[k]=n;
+      const state=$("#state-"+k),item=state.closest(".mood-item"),buttons=[...item.querySelectorAll(".scale-btn")];
+      buttons.forEach((b,i)=>b.setAttribute("aria-pressed",i===n?"true":"false"));
+      state.textContent=["なし","軽い","強い","かなり強い"][n];
+    }
+  });
+
+  sleepValue=entry.sleep||"";
+  $$(".sleep-btn").forEach(b=>b.setAttribute("aria-pressed",b.dataset.value===sleepValue?"true":"false"));
+  $("#sleepState").textContent=sleepValue||"未記録";
+  $("#soy").checked=!!entry.soy;$("#exercise").checked=!!entry.exercise;$("#dairy").checked=!!entry.dairy;$("#pfc").checked=!!entry.pfc;
+  $("#note").value=entry.note||"";
+  validate();
+  updatePositionText();
+  document.querySelector(".observation-card").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function leaveEdit(){
+  editingId=null;
+  $("#editBar").classList.remove("active");
+  saveBtn.textContent="この日を保存";
+  recordDate.disabled=false;
+  resetForm();
+  recordDate.value=todayISO();
+  updateAllCycleUI();
+}
+$("#cancelEdit").addEventListener("click",leaveEdit);
+
+function updatePositionText(){
+  const s=settings();
+  const d=cycleDay(recordDate.value,s.start);
+  const box=$("#position");
+  if(d===null)box.textContent="周期設定をすると周期日が出ます。";
+  else if(d<1)box.textContent="この日付は設定した生理開始日より前です。";
+  else if(d>s.length)box.textContent="周期 "+d+"日目（設定周期 "+s.length+"日を超えています）";
+  else{
+    const h=hormoneModel(d,s.length,s.ovulation);
+    box.textContent="周期 "+d+"日目　・　E推定 "+h.estrogen+"/100　・　P推定 "+h.progesterone+"/100";
+  }
+}
+function updateAllCycleUI(){
+  const s=settings();
+  store(SETTINGS_KEY,s);
+  const startN=dayNumber(s.start);
+  $("#cycleSummary").textContent=s.start&&startN!==null
+    ?"次回目安 "+fmt(isoFromDay(startN+s.length))+" ／ 推定排卵 "+s.ovulation+"日目"
+    :"";
+  updatePositionText();
+  refreshCycleOptions();
+  drawChart();
+}
+[periodStart,cycleLength,ovulationDay,recordDate].forEach(el=>el.addEventListener("change",updateAllCycleUI));
+
+$("#form").addEventListener("submit",e=>{
+  e.preventDefault();
+  if(saveBtn.disabled)return;
+
+  let entry;
+  if(editingId!==null){
+    const i=entries.findIndex(x=>x.id===editingId);
+    if(i<0){leaveEdit();return}
+    entry={
+      ...entries[i],
+      scores:{...scores},sleep:sleepValue,
+      soy:$("#soy").checked,exercise:$("#exercise").checked,dairy:$("#dairy").checked,pfc:$("#pfc").checked,
+      note:$("#note").value.trim()
+    };
+    entries[i]=entry;
+  }else{
+    const s=settings();
+    const d=cycleDay(recordDate.value,s.start);
+    entry={
+      id:Date.now()+Math.random(),date:recordDate.value,cycleStart:s.start,cycleLength:s.length,
+      ovulationDay:s.ovulation,cycleDay:d,scores:{...scores},sleep:sleepValue,
+      soy:$("#soy").checked,exercise:$("#exercise").checked,dairy:$("#dairy").checked,pfc:$("#pfc").checked,
+      note:$("#note").value.trim()
+    };
+    const same=entries.findIndex(x=>x.date===entry.date);
+    if(same>=0)entries[same]=entry;else entries.push(entry);
+  }
+
+  const wasEditing=editingId!==null;
+  const ok=store(STORAGE_KEY,entries);
+  editingId=null;
+  $("#editBar").classList.remove("active");
+  saveBtn.textContent="この日を保存";
+  recordDate.disabled=false;
+  resetForm();
+  recordDate.value=todayISO();
+  renderAll();
+  updateAllCycleUI();
+  saveStatus.textContent=ok?(wasEditing?"変更を保存しました。":"保存しました。"):"端末保存に失敗しました。CSVでバックアップしてください。";
+});
+
+function refreshCycleOptions(){
+  const current=settings();
+  const starts=[...new Set([current.start,...entries.map(e=>e.cycleStart)].filter(Boolean))].sort().reverse();
+  const previous=viewCycle.value;
+  viewCycle.innerHTML="";
+  starts.forEach(start=>{
+    const o=document.createElement("option");
+    o.value=start;o.textContent=fmt(start)+"開始";
+    viewCycle.appendChild(o);
+  });
+  if(starts.includes(previous))viewCycle.value=previous;
+  else if(starts.includes(current.start))viewCycle.value=current.start;
+}
+function settingsForCycle(start){
+  const rows=entries.filter(e=>e.cycleStart===start);
+  if(rows.length){
+    const e=rows[rows.length-1];
+    return {start,length:Number(e.cycleLength)||28,ovulation:Number(e.ovulationDay)||14};
+  }
+  return settings();
+}
+
+function drawChart(){
+  const start=viewCycle.value||settings().start;
+  const s=settingsForCycle(start);
+  const W=760,H=350,L=50,R=50,T=24,B=46,pw=W-L-R,ph=H-T-B;
+  const x=d=>L+(d-1)/Math.max(1,s.length-1)*pw;
+  const yMood=v=>T+(3-v)/3*ph;
+  const yHorm=v=>T+(100-v)/100*ph;
+  const ns="http://www.w3.org/2000/svg";
+  chart.innerHTML="";
+
+  const css=getComputedStyle(document.documentElement);
+  const text=css.getPropertyValue("--text").trim();
+  const line=css.getPropertyValue("--line").trim();
+  const estrogen=css.getPropertyValue("--estrogen").trim();
+  const progesterone=css.getPropertyValue("--progesterone").trim();
+  const mood=css.getPropertyValue("--mood").trim();
+
+  function add(name,attrs={},txt){
+    const n=document.createElementNS(ns,name);
+    Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,String(v)));
+    if(txt!==undefined)n.textContent=txt;
+    chart.appendChild(n);
+    return n;
+  }
+
+  [0,1,2,3].forEach(v=>{
+    const y=yMood(v);
+    add("line",{x1:L,y1:y,x2:W-R,y2:y,stroke:line,"stroke-width":1,opacity:.65});
+    add("text",{x:L-12,y:y+4,"text-anchor":"end",fill:text,"font-size":10,opacity:.45},v);
+    add("text",{x:W-R+10,y:y+4,fill:text,"font-size":10,opacity:.4},Math.round(v/3*100));
+  });
+
+  const tick=s.length<=30?4:5;
+  for(let d=1;d<=s.length;d+=tick){
+    add("text",{x:x(d),y:H-B+18,"text-anchor":"middle",fill:text,"font-size":9,opacity:.43},"D"+d);
+  }
+  add("line",{x1:x(s.ovulation),y1:T,x2:x(s.ovulation),y2:H-B,stroke:line,"stroke-width":1,"stroke-dasharray":"3 5",opacity:.75});
+  add("text",{x:x(s.ovulation),y:T-7,"text-anchor":"middle",fill:text,"font-size":9,opacity:.43},"排卵");
+
+  const days=Array.from({length:s.length},(_,i)=>i+1);
+  const path=(vals,yFn)=>vals.map((v,i)=>(i?"L":"M")+x(days[i]).toFixed(1)+" "+yFn(v).toFixed(1)).join(" ");
+
+  if($("#showEstrogen").checked){
+    add("path",{d:path(days.map(d=>hormoneModel(d,s.length,s.ovulation).estrogen),yHorm),fill:"none",stroke:estrogen,"stroke-width":2.4,"stroke-linecap":"round","stroke-linejoin":"round",opacity:.86});
+  }
+  if($("#showProg").checked){
+    add("path",{d:path(days.map(d=>hormoneModel(d,s.length,s.ovulation).progesterone),yHorm),fill:"none",stroke:progesterone,"stroke-width":2.4,"stroke-linecap":"round","stroke-linejoin":"round",opacity:.82});
+  }
+
+  const points=entries
+    .filter(e=>e.cycleStart===start&&Number(e.cycleDay)>=1&&Number(e.cycleDay)<=s.length)
+    .sort((a,b)=>a.cycleDay-b.cycleDay)
+    .map(e=>({entry:e,value:activeSeries==="composite"?composite(e):Number(e.scores?.[activeSeries])}))
+    .filter(o=>Number.isFinite(o.value));
+
+  if(points.length){
+    add("path",{d:points.map((o,i)=>(i?"L":"M")+x(o.entry.cycleDay).toFixed(1)+" "+yMood(o.value).toFixed(1)).join(" "),fill:"none",stroke:mood,"stroke-width":3.1,"stroke-linecap":"round","stroke-linejoin":"round"});
+    points.forEach(o=>{
+      add("circle",{cx:x(o.entry.cycleDay),cy:yMood(o.value),r:5,fill:mood});
+      const hit=add("circle",{cx:x(o.entry.cycleDay),cy:yMood(o.value),r:15,fill:"transparent",tabindex:0,role:"button"});
+      const show=()=>{
+        const h=hormoneModel(o.entry.cycleDay,s.length,s.ovulation);
+        const label=series.find(a=>a[0]===activeSeries)?.[1]||"";
+        $("#chartDetail").textContent=fmt(o.entry.date)+" ・ 周期"+o.entry.cycleDay+"日目 ・ "+label+" "+o.value.toFixed(activeSeries==="composite"?1:0)+" ・ E "+h.estrogen+"/100 ・ P "+h.progesterone+"/100"+(o.entry.note?" ・ "+o.entry.note:"");
+      };
+      hit.addEventListener("click",show);
+      hit.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();show()}});
+    });
+  }else{
+    add("text",{x:W/2,y:H/2,"text-anchor":"middle",fill:text,"font-size":12,opacity:.35},"この周期の記録はまだありません");
+  }
+}
+
+function renderHistory(){
+  $("#count").textContent=entries.length+"件";
+  $("#exportBtn").disabled=!entries.length;
+  $("#clearBtn").disabled=!entries.length;
+  if(!entries.length){
+    historyEl.className="empty";
+    historyEl.textContent="まだ記録はありません。";
+    return;
+  }
+  historyEl.className="history-list";
+  historyEl.innerHTML="";
+  [...entries].sort((a,b)=>b.date.localeCompare(a.date)).forEach(entry=>{
+    const row=document.createElement("article");
+    row.className="entry";
+    const chips=defs.map(([k,l])=>'<span class="chip">'+esc(l)+" "+esc(entry.scores?.[k]??"")+"</span>").join("");
+    const extra=[entry.sleep,entry.soy?"大豆あり":"",entry.exercise?"運動あり":"",entry.dairy?"乳製品多め":"",entry.pfc?"PFC意識":""].filter(Boolean).join(" ・ ");
+    row.innerHTML=
+      '<div class="entry-top"><div><span class="entry-date">'+esc(entry.date)+'</span><span class="entry-cycle">周期'+esc(entry.cycleDay)+'日目</span></div>'+
+      '<div class="entry-actions"><button class="text-btn edit" type="button">編集</button><button class="text-btn delete" type="button">削除</button></div></div>'+
+      '<div class="chips">'+chips+'</div>'+
+      (extra?'<div class="entry-extra">'+esc(extra)+'</div>':'')+
+      (entry.note?'<div class="entry-note">'+esc(entry.note)+'</div>':'');
+    row.querySelector(".edit").addEventListener("click",()=>enterEdit(entry));
+    row.querySelector(".delete").addEventListener("click",()=>{
+      if(editingId===entry.id)leaveEdit();
+      entries=entries.filter(x=>x.id!==entry.id);
+      store(STORAGE_KEY,entries);
+      renderAll();
+    });
+    historyEl.appendChild(row);
+  });
+}
+function renderAll(){refreshCycleOptions();drawChart();renderHistory()}
+
+viewCycle.addEventListener("change",drawChart);
+$("#showEstrogen").addEventListener("change",drawChart);
+$("#showProg").addEventListener("change",drawChart);
+
+function csvEscape(v){return '"'+String(v??"").replace(/"/g,'""')+'"'}
+$("#exportBtn").addEventListener("click",()=>{
+  if(!entries.length)return;
+  const heads=["date","cycle_start","cycle_length","ovulation_day","cycle_day","composite","estrogen_estimate_0_100","progesterone_estimate_0_100",...defs.map(x=>x[0]),"sleep","soy","exercise","dairy","pfc","note"];
+  const rows=[heads.map(csvEscape).join(",")];
+  [...entries].sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>{
+    const length=Number(e.cycleLength)||28,ov=Number(e.ovulationDay)||14,cd=Number(e.cycleDay);
+    const h=cd>=1&&cd<=length?hormoneModel(cd,length,ov):{estrogen:"",progesterone:""};
+    rows.push([e.date,e.cycleStart,length,ov,cd,composite(e).toFixed(2),h.estrogen,h.progesterone,...defs.map(([k])=>e.scores?.[k]??""),e.sleep,e.soy?1:0,e.exercise?1:0,e.dairy?1:0,e.pfc?1:0,e.note].map(csvEscape).join(","));
+  });
+  const blob=new Blob(["\uFEFF"+rows.join("\n")],{type:"text/csv;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download="cycle-mental-log_"+todayISO()+".csv";
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  $("#dataStatus").textContent="CSVを書き出しました。";
+});
+
+function parseCSV(text){
+  const out=[];let row=[],field="",quoted=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i],n=text[i+1];
+    if(quoted){
+      if(c==='"'&&n==='"'){field+='"';i++}
+      else if(c==='"')quoted=false;
+      else field+=c;
+    }else{
+      if(c==='"')quoted=true;
+      else if(c===","){row.push(field);field=""}
+      else if(c==="\n"){row.push(field.replace(/\r$/,""));out.push(row);row=[];field=""}
+      else field+=c;
+    }
+  }
+  if(field.length||row.length){row.push(field.replace(/\r$/,""));out.push(row)}
+  return out;
+}
+$("#importInput").addEventListener("change",()=>{
+  const file=$("#importInput").files?.[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const rows=parseCSV(String(reader.result||"").replace(/^\uFEFF/,""));
+      if(rows.length<2)throw new Error("データ行がありません");
+      const head=rows[0],idx=k=>head.indexOf(k);
+      if(idx("date")<0||idx("cycle_start")<0)throw new Error("対応CSVではありません");
+      let added=0;
+      rows.slice(1).filter(r=>r.some(Boolean)).forEach(cols=>{
+        const get=k=>idx(k)>=0?(cols[idx(k)]??""):"";
+        const s={};
+        defs.forEach(([k])=>s[k]=clamp(parseInt(get(k),10)||0,0,3));
+        const e={
+          id:Date.now()+Math.random(),date:get("date"),cycleStart:get("cycle_start"),
+          cycleLength:clamp(parseInt(get("cycle_length"),10)||28,21,45),
+          ovulationDay:parseInt(get("ovulation_day"),10)||14,
+          cycleDay:parseInt(get("cycle_day"),10)||cycleDay(get("date"),get("cycle_start")),
+          scores:s,sleep:get("sleep"),soy:get("soy")==="1",exercise:get("exercise")==="1",
+          dairy:get("dairy")==="1",pfc:get("pfc")==="1",note:get("note")
+        };
+        if(!e.date||!e.cycleStart)return;
+        const same=entries.findIndex(x=>x.date===e.date);
+        if(same>=0)entries[same]=e;else entries.push(e);
+        added++;
+      });
+      store(STORAGE_KEY,entries);
+      renderAll();
+      $("#dataStatus").textContent=added+"件を読み込みました。";
+    }catch(err){
+      $("#dataStatus").textContent="読み込みできませんでした："+err.message;
+    }finally{
+      $("#importInput").value="";
+    }
+  };
+  reader.readAsText(file,"UTF-8");
+});
+
+$("#clearBtn").addEventListener("click",()=>{
+  if(!entries.length)return;
+  if(confirm("この端末に保存された記録をすべて消しますか？")){
+    entries=[];
+    store(STORAGE_KEY,entries);
+    renderAll();
+    $("#dataStatus").textContent="全記録を消しました。";
+  }
+});
+
+updateAllCycleUI();
+validate();
+renderHistory();
+
+})();
+</script>
+</body>
+</html>
